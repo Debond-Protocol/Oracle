@@ -4,7 +4,7 @@ pragma solidity >=0.7.6;
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol"; 
 import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 
-contract UniswapV3Twap {
+contract Oracle {
     address factory;
    
     constructor(
@@ -12,6 +12,7 @@ contract UniswapV3Twap {
     ) {
         factory = _factory;
     }
+    
     function getPool(address _token0, address _token1, uint24 _fee) internal view returns(address poolAddress) {
          poolAddress = IUniswapV3Factory(factory).getPool(
             _token0,
@@ -39,11 +40,16 @@ contract UniswapV3Twap {
 
         // int56 since tick * time = int24 * uint32
         // 56 = 24 + 32
-        (int56[] memory tickCumulatives, ) = IUniswapV3Pool(getPool(tokenIn, tokenOut, fee)).observe(
+        address pool = getPool(tokenIn, tokenOut, fee);
+        require(pool != address(0), "Oracle : address is null");
+        (int56[] memory tickCumulatives, ) = IUniswapV3Pool(pool).observe(
             secondsAgos
         );
+               
 
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
+
+        require(tickCumulativesDelta > 0, "tick is null");
 
         // int56 / uint32 = int24
         int24 tick = int24(tickCumulativesDelta / secondsAgo);
