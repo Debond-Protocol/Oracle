@@ -3,8 +3,9 @@ pragma solidity >=0.7.6;
 
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol"; 
 import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
+import "./IOracle.sol";
 
-contract Oracle {
+contract Oracle is IOracle {
     address factory;
    
     constructor(
@@ -38,6 +39,8 @@ contract Oracle {
         secondsAgos[0] = secondsAgo;
         secondsAgos[1] = 0;
 
+        //uint32[] memory secondsAgos2  = abi.encode(secondsAgos);
+
         // int56 since tick * time = int24 * uint32
         // 56 = 24 + 32
         address pool = getPool(tokenIn, tokenOut, fee);
@@ -49,7 +52,7 @@ contract Oracle {
 
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
 
-        require(tickCumulativesDelta > 0, "tick is null");
+        //require(tickCumulativesDelta > 0, "tick is null");
 
         // int56 / uint32 = int24
         int24 tick = int24(tickCumulativesDelta / secondsAgo);
