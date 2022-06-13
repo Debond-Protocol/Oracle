@@ -6,7 +6,8 @@ import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 import "./IOracle.sol";
 
 contract Oracle is IOracle {
-    address factory;
+    
+    address immutable factory;
    
     constructor(
         address _factory
