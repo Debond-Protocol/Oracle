@@ -24,7 +24,11 @@ interface IOracle {
         uint32 secondsAgo
     ) external view returns (uint amountOut);
 
-   
+   function getPoolWithoutCheck(
+        address token1,
+        address token2, 
+        uint24 fee
+        ) external view returns (address poolAddress);
 }
 
 
