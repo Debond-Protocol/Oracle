@@ -6,7 +6,8 @@ import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 import "./IOracle.sol";
 
 contract Oracle is IOracle {
-    address factory;
+    
+    address immutable factory;
    
     constructor(
         address _factory
@@ -78,5 +79,9 @@ contract Oracle is IOracle {
             tokenIn,
             tokenOut
         );
+    }
+    //for changing fee param
+    function getPoolWithoutCheck(address token1, address token2, uint24 fee) public view returns (address poolAddress) {
+        poolAddress = IUniswapV3Factory(factory).getPool(token1, token2, fee);  //can be 0
     }
 }
