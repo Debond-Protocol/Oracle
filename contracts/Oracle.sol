@@ -29,7 +29,7 @@ contract Oracle is IOracle {
         address tokenIn,
         uint128 amountIn,
         address tokenOut,
-        uint24 fee,
+        address poolAddress,
         uint32 secondsAgo
     ) external view returns (uint amountOut) {
 
@@ -44,9 +44,10 @@ contract Oracle is IOracle {
 
         // int56 since tick * time = int24 * uint32
         // 56 = 24 + 32
-        address pool = getPool(tokenIn, tokenOut, fee);
-        require(pool != address(0), "Oracle : address is null");
-        (int56[] memory tickCumulatives, ) = IUniswapV3Pool(pool).observe(
+        
+        //address pool = getPool(tokenIn, tokenOut, fee);
+        //require(pool != address(0), "Oracle : address is null");
+        (int56[] memory tickCumulatives, ) = IUniswapV3Pool(poolAddress).observe(
             secondsAgos
         );
                
