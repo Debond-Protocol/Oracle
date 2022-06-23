@@ -1,0 +1,11 @@
+{
+  "name": "debond-oracle-contracts",
+  "version": "0.0.1",
+  "description": "oracle used by the Debond Bank to track prices",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "info@debond.org",
+  "license": "ISC"
+}
