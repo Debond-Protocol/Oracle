@@ -20,7 +20,6 @@ interface IOracle {
         address tokenIn,
         uint128 amountIn,
         address tokenOut,
-        address poolAddress,
         uint32 secondsAgo
     ) external view returns (uint amountOut);
 
