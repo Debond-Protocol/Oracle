@@ -3,16 +3,49 @@ pragma solidity >=0.7.6;
 
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol"; 
 import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
-import "./IOracle.sol";
+import "./interfaces/IOracle.sol";
+import "./interfaces/IBalanceGetterERC20.sol";
 
 contract Oracle is IOracle {
     
     address immutable factory;
+    mapping( address=> mapping( address => address) ) poolAddresses;
+    uint24[4] fees = [10000, 3000, 500, 100];
    
     constructor(
         address _factory
     ) {
         factory = _factory;
+    }
+
+    function update(address token1, address token2) external {
+        (address tokenA, address tokenB) = _sortTokens(token1, token2);
+        poolAddresses[tokenA][tokenB] = _maxLiquidity(tokenA, tokenB);
+    }
+
+    function _maxLiquidity(address token1, address token2) internal view returns (address poolAddress) {
+        uint balance;
+        (balance, poolAddress) = _getLiquidity(token1, token2, 100);
+
+        for (uint i; i < 3; i++) {
+            (uint temp_balance, address temp_address) = _getLiquidity(token1, token2, fees[i]);
+            if (temp_balance > balance) {
+                poolAddress = temp_address;
+            }
+        }
+    }
+
+    function _getLiquidity(address token1, address token2, uint24 fee) internal view returns (uint balance1, address poolAddress) {
+        poolAddress = getPoolWithoutCheck(token1, token2, fee);
+        if (poolAddress != address(0)){
+            balance1 = IBalanceGetterERC20(token1).balanceOf(poolAddress);
+        }
+    }
+
+    function _sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
+        require(tokenA != tokenB, 'feeProxy: IDENTICAL_ADDRESSES');
+        (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        require(token0 != address(0), 'feeProxy: ZERO_ADDRESS');
     }
     
     function getPool(address _token0, address _token1, uint24 _fee) internal view returns(address poolAddress) {
@@ -29,11 +62,14 @@ contract Oracle is IOracle {
         address tokenIn,
         uint128 amountIn,
         address tokenOut,
-        address poolAddress,
         uint32 secondsAgo
-    ) external view returns (uint amountOut) {
+    ) external override view returns (uint amountOut) {
 
         // (int24 tick, ) = OracleLibrary.consult(pool, secondsAgo);
+
+        (address token0, address token1) = _sortTokens(tokenIn, tokenOut);
+        address poolAddress = poolAddresses[token0][token1];
+        require(poolAddress != address(0), "CDP : address is null");
 
         // Code copied from OracleLibrary.sol, consult()
         uint32[] memory secondsAgos = new uint32[](2);
@@ -82,7 +118,7 @@ contract Oracle is IOracle {
         );
     }
     //for changing fee param
-    function getPoolWithoutCheck(address token1, address token2, uint24 fee) public view returns (address poolAddress) {
+    function getPoolWithoutCheck(address token1, address token2, uint24 fee) public override view returns (address poolAddress) {
         poolAddress = IUniswapV3Factory(factory).getPool(token1, token2, fee);  //can be 0
     }
 }
