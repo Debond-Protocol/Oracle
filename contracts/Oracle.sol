@@ -3,7 +3,7 @@ pragma solidity >=0.7.6;
 
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol"; 
 import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
-import "./IOracle.sol";
+import "./interfaces/IOracle.sol";
 
 contract Oracle is IOracle {
     
@@ -31,7 +31,7 @@ contract Oracle is IOracle {
         address tokenOut,
         address poolAddress,
         uint32 secondsAgo
-    ) external view returns (uint amountOut) {
+    ) external override view returns (uint amountOut) {
 
         // (int24 tick, ) = OracleLibrary.consult(pool, secondsAgo);
 
@@ -82,7 +82,7 @@ contract Oracle is IOracle {
         );
     }
     //for changing fee param
-    function getPoolWithoutCheck(address token1, address token2, uint24 fee) public view returns (address poolAddress) {
+    function getPoolWithoutCheck(address token1, address token2, uint24 fee) public override view returns (address poolAddress) {
         poolAddress = IUniswapV3Factory(factory).getPool(token1, token2, fee);  //can be 0
     }
 }
