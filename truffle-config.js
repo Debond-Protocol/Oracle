@@ -31,7 +31,17 @@ module.exports = {
       network_id: 3,
       // gas: 30000000, //from ganache-cli output
       gasPrice: web3.utils.toWei('1', 'gwei')
+    },
+    mumbai: {
+      provider: function() {
+        return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, `https://mumbai.infura.io/v3/${process.env.INFURA_Access_Token}`);
+      }
+
     }
+  
+  
+  
+  
   },
   mocha: {
      reporter: 'eth-gas-reporter',

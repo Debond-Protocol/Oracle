@@ -6,19 +6,22 @@ import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 import "./interfaces/IOracle.sol";
 import "./interfaces/IBalanceGetterERC20.sol";
 
-contract Oracle is IOracle {
+import "debond-governance/contracts/utils/GovernanceOwnable.sol";
+
+contract Oracle is IOracle , GovernanceOwnable {
     
     address immutable factory;
-    mapping( address=> mapping( address => address) ) poolAddresses;
+    mapping( address => mapping( address => address) ) poolAddresses;
     uint24[4] fees = [10000, 3000, 500, 100];
    
     constructor(
-        address _factory
-    ) {
+        address _factory,
+        address governance
+    ) GovernanceOwnable(governance) {
         factory = _factory;
     }
 
-    function update(address token1, address token2) external {
+    function update(address token1, address token2) external onlyGovernance {
         (address tokenA, address tokenB) = _sortTokens(token1, token2);
         poolAddresses[tokenA][tokenB] = _maxLiquidity(tokenA, tokenB);
     }
@@ -65,7 +68,6 @@ contract Oracle is IOracle {
         uint32 secondsAgo
     ) external override view returns (uint amountOut) {
 
-        // (int24 tick, ) = OracleLibrary.consult(pool, secondsAgo);
 
         (address token0, address token1) = _sortTokens(tokenIn, tokenOut);
         address poolAddress = poolAddresses[token0][token1];
