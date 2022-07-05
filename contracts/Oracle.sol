@@ -6,9 +6,9 @@ import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 import "./interfaces/IOracle.sol";
 import "./interfaces/IBalanceGetterERC20.sol";
 
-import "debond-governance-contracts/utils/GovernanceOwnable.sol";
+//import "debond-governance-contracts/utils/GovernanceOwnable.sol";
 
-contract Oracle is IOracle , GovernanceOwnable {
+contract Oracle is IOracle  {
     address immutable factory;
     mapping(address => mapping( address => address)) poolAddresses;
     uint24[4] fees = [10000, 3000, 500, 100];
@@ -16,7 +16,7 @@ contract Oracle is IOracle , GovernanceOwnable {
     constructor(
         address _factory,
         address governance
-    ) GovernanceOwnable(governance) {
+    ) /**GovernanceOwnable(governance) **/ {
         factory = _factory;
     }
     /**
@@ -31,7 +31,7 @@ contract Oracle is IOracle , GovernanceOwnable {
     @dev in order to use them for determining the price which is consistent for sufficient liquidity.   
     @param token1 is the address of given ERC20.
     @param token2 is the address of underlying stablecoin.
-    @returns poolAddress the address of pool with the highest liquidity.
+    @return poolAddress the address of pool with the highest liquidity.
      */
 
     function _maxLiquidity(address token1, address token2) internal view returns (address poolAddress) {
@@ -135,18 +135,18 @@ contract Oracle is IOracle , GovernanceOwnable {
     @dev for fetching the pool address for the given pool and fees 
     @dev  used as an check for determining liquidity .  
      */
-    function _getPoolWithoutCheck(address token1, address token2, uint24 fee) internal override view returns (address poolAddress) {
+    function _getPoolWithoutCheck(address token1, address token2, uint24 fee) internal  view returns (address poolAddress) {
         poolAddress = IUniswapV3Factory(factory).getPool(token1, token2, fee);  //can be 0
     }
 
     /**
     changing factory contract when needed.
-     */
-    function setFactoryContract(address _newFactoryContract) external onlyGovernace returns(bool){
-        _factory = _newFactoryContract;
-        return(true);
 
-    }
+     */
+    // function setFactoryContract(address _newFactoryContract) external /**onlyGovernace**/ returns(bool){
+    //     factory = _newFactoryContract;
+    //     return(true);
+    // }
 
 
 }
