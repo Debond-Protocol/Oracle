@@ -30,3 +30,8 @@ the mapping of token pairs with the pool address is defined by `mapping poolAddr
 
  dependence on the uniswap oracle: currently we only reference the uniswap V3 TWAP for finding the token price in USD. given the events of depegging and other events happening in the DeFI ecosystem, there must be stopgapp mechanisms during the time of crisis (either in the uniswap or the larger black swan event). 
 
+
+
+## Diagram: 
+
+![](./oracle.png).
