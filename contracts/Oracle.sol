@@ -36,7 +36,7 @@ contract Oracle is IOracle {
     }
 
     function _getLiquidity(address token1, address token2, uint24 fee) internal view returns (uint balance1, address poolAddress) {
-        poolAddress = getPoolWithoutCheck(token1, token2, fee);
+        poolAddress = IUniswapV3Factory(factory).getPool(token1, token2, fee);  //can be 0
         if (poolAddress != address(0)){
             balance1 = IBalanceGetterERC20(token1).balanceOf(poolAddress);
         }
@@ -116,9 +116,5 @@ contract Oracle is IOracle {
             tokenIn,
             tokenOut
         );
-    }
-    //for changing fee param
-    function getPoolWithoutCheck(address token1, address token2, uint24 fee) public override view returns (address poolAddress) {
-        poolAddress = IUniswapV3Factory(factory).getPool(token1, token2, fee);  //can be 0
     }
 }
