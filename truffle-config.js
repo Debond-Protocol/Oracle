@@ -21,8 +21,6 @@ module.exports = {
         return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, `https://rinkeby.infura.io/v3/${process.env.INFURA_Access_Token}`);
       },
       network_id: 4,
-      // gas: 30000000, //from ganache-cli output
-      // gasPrice: web3.utils.toWei('1', 'gwei')
     },
     ropsten: {
       provider: function() {

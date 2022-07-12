@@ -27,9 +27,8 @@ contract Oracle is IOracle  {
     uint24[4] fees = [10000, 3000, 500, 100];
     uint24 liquidityFeesParam = 100;
     constructor(
-        address _factory,
-        address governance
-    )  {
+        address _factory
+            )  {
         factory = _factory;
     }
     /**
