@@ -1,5 +1,18 @@
-//SPDX-License-Identifier: MIT
 pragma solidity >=0.7.6;
+
+// SPDX-License-Identifier: apache 2.0
+/*
+    Copyright 2022 Debond Protocol <info@debond.org>
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+*/
 
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol"; 
 import "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
@@ -16,7 +29,7 @@ contract Oracle is IOracle  {
     constructor(
         address _factory,
         address governance
-    ) /**GovernanceOwnable(governance) **/ {
+    )  {
         factory = _factory;
     }
     /**
@@ -57,7 +70,7 @@ contract Oracle is IOracle  {
 
      */
     function _getLiquidity(address token1, address token2, uint24 fee) internal view returns (uint balance1, address poolAddress) {
-        poolAddress = _getPoolWithoutCheck(token1, token2, fee);
+        poolAddress = IUniswapV3Factory(factory).getPool(token1, token2, fee);  //can be 0
         if (poolAddress != address(0)){
             balance1 = IBalanceGetterERC20(token1).balanceOf(poolAddress);
         }
@@ -69,15 +82,7 @@ contract Oracle is IOracle  {
         require(token0 != address(0), 'feeProxy: ZERO_ADDRESS');
     }
     
-    // function getPool(address _token0, address _token1, uint24 _fee) internal view returns(address poolAddress) {
-    //      poolAddress = IUniswapV3Factory(factory).getPool(
-    //         _token0,
-    //         _token1,
-    //         _fee
-    //     );
-    //     require(poolAddress != address(0), "pool doesn't exist");
-    // }
-     
+  
 
     function estimateAmountOut(
         address tokenIn,
@@ -96,13 +101,7 @@ contract Oracle is IOracle  {
         secondsAgos[0] = secondsAgo;
         secondsAgos[1] = 0;
 
-        //uint32[] memory secondsAgos2  = abi.encode(secondsAgos);
-
-        // int56 since tick * time = int24 * uint32
-        // 56 = 24 + 32
-        
-        //address pool = getPool(tokenIn, tokenOut, fee);
-        //require(pool != address(0), "Oracle : address is null");
+       
         (int56[] memory tickCumulatives, ) = IUniswapV3Pool(poolAddress).observe(
             secondsAgos
         );
@@ -110,7 +109,6 @@ contract Oracle is IOracle  {
 
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
 
-        //require(tickCumulativesDelta > 0, "tick is null");
 
         // int56 / uint32 = int24
         int24 tick = int24(tickCumulativesDelta / secondsAgo);
@@ -131,22 +129,4 @@ contract Oracle is IOracle  {
             tokenOut
         );
     }
-    /**
-    @dev for fetching the pool address for the given pool and fees 
-    @dev  used as an check for determining liquidity .  
-     */
-    function _getPoolWithoutCheck(address token1, address token2, uint24 fee) internal  view returns (address poolAddress) {
-        poolAddress = IUniswapV3Factory(factory).getPool(token1, token2, fee);  //can be 0
-    }
-
-    /**
-    changing factory contract when needed.
-
-     */
-    // function setFactoryContract(address _newFactoryContract) external /**onlyGovernace**/ returns(bool){
-    //     factory = _newFactoryContract;
-    //     return(true);
-    // }
-
-
 }
