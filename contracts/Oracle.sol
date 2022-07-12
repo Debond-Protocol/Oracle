@@ -95,7 +95,7 @@ contract Oracle is IOracle  {
         address poolAddress = poolAddresses[token0][token1];
         require(poolAddress != address(0), "CDP : address is null");
 
-        // Code copied from OracleLibrary.sol, consult()
+        // ref: OracleLibrary.sol from uniswap
         uint32[] memory secondsAgos = new uint32[](2);
         secondsAgos[0] = secondsAgo;
         secondsAgos[1] = 0;
@@ -109,7 +109,7 @@ contract Oracle is IOracle  {
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
 
 
-        // int56 / uint32 = int24
+        //  convertion type  int56 / uint32 = int24.
         int24 tick = int24(tickCumulativesDelta / secondsAgo);
      
         /* if tickCumulativeDelta < 0 and division has remainder
