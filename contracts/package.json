@@ -1,11 +1,25 @@
 {
-  "name": "debond-oracle-contracts",
+  "name": "@debond-protocol/debond-oracle-contracts",
   "version": "0.0.1",
-  "description": "oracle used by the Debond Bank to track prices",
+  "description": "Debond Oracle Contracts",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "info@debond.org",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Debond-Protocol/Oracle.git"
+  },
+  "keywords": [
+    "debond",
+    "protocol",
+    "oracle",
+    "contract"
+  ],
+  "author": "Debond Protocol <info@debond.org>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Debond-Protocol/Oracle/issues"
+  },
+  "homepage": "https://github.com/Debond-Protocol/Oracle#readme"
 }
