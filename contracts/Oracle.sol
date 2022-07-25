@@ -22,16 +22,20 @@ import "./interfaces/IBalanceGetterERC20.sol";
 contract Oracle is IOracle {
     
     address immutable factory;
+    address immutable owner;
     mapping( address=> mapping( address => address) ) poolAddresses;
     uint24[4] fees = [10000, 3000, 500, 100];
    
     constructor(
-        address _factory
+        address _factory,
+        address _owner
     ) {
         factory = _factory;
+        owner = _owner;
     }
 
     function update(address token1, address token2) external {
+        require(msg.sender == owner, "Oracle : not authorized");
         (address tokenA, address tokenB) = _sortTokens(token1, token2);
         poolAddresses[tokenA][tokenB] = _maxLiquidity(tokenA, tokenB);
     }
