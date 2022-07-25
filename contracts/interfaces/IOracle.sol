@@ -16,12 +16,7 @@ pragma solidity >=0.7.6;
 
 interface IOracle {
 
-    function estimateAmountOut(
-        address tokenIn,
-        uint128 amountIn,
-        address tokenOut,
-        uint32 secondsAgo
-    ) external view returns (uint amountOut);
+   function getLatestPrice() external view returns (int);
 }
 
 
