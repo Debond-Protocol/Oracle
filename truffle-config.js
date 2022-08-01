@@ -1,5 +1,5 @@
 require("ts-node").register({files: true});
-const HDWalletProvider = require("truffle-hdwallet-provider");
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 require('dotenv').config();
 const Web3 = require("web3");
 const web3 = new Web3();
@@ -31,6 +31,14 @@ module.exports = {
       network_id: 3,
       // gas: 30000000, //from ganache-cli output
       gasPrice: web3.utils.toWei('1', 'gwei')
+    },
+
+    polygon: {
+      provider: function() {
+        return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY,`https://polygon-mainnet.g.alchemy.com/v2/CAS-poG3CPJvj4JpSfmC_GMY22XNDW-D`);
+      },
+      network_id: 137,
+      gasPrice: web3.utils.toWei('100', 'gwei')
     }
   },
   mocha: {

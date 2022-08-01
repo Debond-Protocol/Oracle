@@ -1,5 +1,6 @@
-const Oracle = artifacts.require("Oracle");
+const Migrations = artifacts.require("Migrations");
 
-module.exports = function (deployer) {
-  deployer.deploy(Oracle, "0x1F98431c8aD98523631AE4a59f267346ea31F984");
+module.exports = function(deployer) {
+  // deployment steps
+  deployer.deploy(Migrations);
 };
