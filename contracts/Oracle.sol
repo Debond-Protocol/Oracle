@@ -38,6 +38,7 @@ contract Oracle is IOracle {
         require(msg.sender == owner, "Oracle : not authorized");
         (address tokenA, address tokenB) = _sortTokens(token1, token2);
         poolAddresses[tokenA][tokenB] = _maxLiquidity(tokenA, tokenB);
+        require(poolAddresses[tokenA][tokenB] != address(0), 'Oracle: ZERO_ADDRESS');
     }
 
     function _maxLiquidity(address token1, address token2) internal view returns (address poolAddress) {
@@ -60,9 +61,9 @@ contract Oracle is IOracle {
     }
 
     function _sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
-        require(tokenA != tokenB, 'feeProxy: IDENTICAL_ADDRESSES');
+        require(tokenA != tokenB, 'Oracle: IDENTICAL_ADDRESSES');
         (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'feeProxy: ZERO_ADDRESS');
+        require(token0 != address(0), 'Oracle: ZERO_ADDRESS');
     }
     
     function getPool(address _token0, address _token1, uint24 _fee) internal view returns(address poolAddress) {
@@ -86,7 +87,7 @@ contract Oracle is IOracle {
 
         (address token0, address token1) = _sortTokens(tokenIn, tokenOut);
         address poolAddress = poolAddresses[token0][token1];
-        require(poolAddress != address(0), "CDP : address is null");
+        require(poolAddress != address(0), "Oracle : address is null");
 
         // Code copied from OracleLibrary.sol, consult()
         uint32[] memory secondsAgos = new uint32[](2);
