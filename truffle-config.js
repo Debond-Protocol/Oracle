@@ -35,7 +35,7 @@ module.exports = {
 
     polygon: {
       provider: function() {
-        return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY,`https://polygon-mainnet.g.alchemy.com/v2/CAS-poG3CPJvj4JpSfmC_GMY22XNDW-D`);
+        return new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY,`https://polygon-mainnet.g.alchemy.com/v2/${process.env.Alchemy_Access_Token}`);
       },
       network_id: 137,
       gasPrice: web3.utils.toWei('100', 'gwei')
