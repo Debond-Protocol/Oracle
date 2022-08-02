@@ -34,7 +34,7 @@ contract Oracle is IOracle {
         owner = _owner;
     }
 
-    function update(address token1, address token2) external {
+    function update(address token1, address token2) external override {
         require(msg.sender == owner, "Oracle : not authorized");
         (address tokenA, address tokenB) = _sortTokens(token1, token2);
         poolAddresses[tokenA][tokenB] = _maxLiquidity(tokenA, tokenB);
@@ -75,16 +75,42 @@ contract Oracle is IOracle {
         require(poolAddress != address(0), "pool doesn't exist");
     }
      
+    /// @notice Given a tick and a token amount, calculates the amount of token received in exchange
+    /// @param tick Tick value used to calculate the quote
+    /// @param baseAmount Amount of token to be converted
+    /// @param baseToken Address of an ERC20 token contract used as the baseAmount denomination
+    /// @param quoteToken Address of an ERC20 token contract used as the quoteAmount denomination
+    /// @return quoteAmount Amount of quoteToken received for baseAmount of baseToken
+    function getQuoteAtTick(
+        int24 tick,
+        uint128 baseAmount,
+        address baseToken,
+        address quoteToken
+    ) internal pure returns (uint256 quoteAmount) {
+        uint160 sqrtRatioX96 = TickMath.getSqrtRatioAtTick(tick);
 
+        // Calculate quoteAmount with better precision if it doesn't overflow when multiplied by itself
+        if (sqrtRatioX96 <= type(uint128).max) {
+            uint256 ratioX192 = uint256(sqrtRatioX96) * sqrtRatioX96;
+            quoteAmount = baseToken < quoteToken
+                ? FullMath.mulDiv(ratioX192, baseAmount, 1 << 192)
+                : FullMath.mulDiv(1 << 192, baseAmount, ratioX192);
+        } else {
+            uint256 ratioX128 = FullMath.mulDiv(sqrtRatioX96, sqrtRatioX96, 1 << 64);
+            quoteAmount = baseToken < quoteToken
+                ? FullMath.mulDiv(ratioX128, baseAmount, 1 << 128)
+                : FullMath.mulDiv(1 << 128, baseAmount, ratioX128);
+        }
+    }
+
+    // this function was took from https://github.com/t4sk/uniswap-v3-twap/blob/main/contracts/UniswapV3Twap.sol
     function estimateAmountOut(
         address tokenIn,
         uint128 amountIn,
         address tokenOut,
         uint32 secondsAgo
     ) external override view returns (uint amountOut) {
-
-        // (int24 tick, ) = OracleLibrary.consult(pool, secondsAgo);
-
+        //determining pool address
         (address token0, address token1) = _sortTokens(tokenIn, tokenOut);
         address poolAddress = poolAddresses[token0][token1];
         require(poolAddress != address(0), "Oracle : address is null");
@@ -93,42 +119,16 @@ contract Oracle is IOracle {
         uint32[] memory secondsAgos = new uint32[](2);
         secondsAgos[0] = secondsAgo;
         secondsAgos[1] = 0;
-
-        //uint32[] memory secondsAgos2  = abi.encode(secondsAgos);
-
-        // int56 since tick * time = int24 * uint32
-        // 56 = 24 + 32
-        
-        //address pool = getPool(tokenIn, tokenOut, fee);
-        //require(pool != address(0), "Oracle : address is null");
-        (int56[] memory tickCumulatives, ) = IUniswapV3Pool(poolAddress).observe(
-            secondsAgos
-        );
-               
-
+        (int56[] memory tickCumulatives, ) = IUniswapV3Pool(poolAddress).observe(secondsAgos);
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
-
-        //require(tickCumulativesDelta > 0, "tick is null");
-
-        // int56 / uint32 = int24
         int24 tick = int24(tickCumulativesDelta / secondsAgo);
-        // Always round to negative infinity
-        /*
-        int doesn't round down when it is negative
-        int56 a = -3
-        -3 / 10 = -3.3333... so round down to -4
-        but we get
-        a / 10 = -3
-        so if tickCumulativeDelta < 0 and division has remainder, then round
-        down
-        */
         if (
             tickCumulativesDelta < 0 && (tickCumulativesDelta % secondsAgo != 0)
         ) {
             tick--;
         }
 
-        amountOut = OracleLibrary.getQuoteAtTick(
+        amountOut = getQuoteAtTick(
             tick,
             amountIn,
             tokenIn,

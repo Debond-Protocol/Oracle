@@ -22,4 +22,6 @@ interface IOracle {
         address tokenOut,
         uint32 secondsAgo
     ) external view returns (uint amountOut);
+
+    function update(address token1, address token2) external;
 }

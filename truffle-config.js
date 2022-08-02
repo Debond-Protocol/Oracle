@@ -1,5 +1,5 @@
 require("ts-node").register({files: true});
-const HDWalletProvider = require("truffle-hdwallet-provider");
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 require('dotenv').config();
 const Web3 = require("web3");
 const web3 = new Web3();
@@ -8,6 +8,7 @@ module.exports = {
   plugins: ['truffle-plugin-verify'],
   api_keys: {
     etherscan: process.env.ETHERSCAN_API_KEY,
+    polygonscan : process.env.POLYGONSCAN_API_KEY
   },
   networks: {
     development: {
@@ -31,6 +32,15 @@ module.exports = {
       network_id: 3,
       // gas: 30000000, //from ganache-cli output
       gasPrice: web3.utils.toWei('1', 'gwei')
+    },
+    matic: {
+      provider: () => new HDWalletProvider(process.env.TESTNET_PRIVATE_KEY, `wss://polygon-mainnet.g.alchemy.com/v2/${process.env.MAINNET_POLYGON_KEY}`),
+      network_id: 137,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      gasPrice: web3.utils.toWei('100', 'gwei'),
+      gas: 3000000,
+      skipDryRun: true
     }
   },
   mocha: {
@@ -44,6 +54,10 @@ module.exports = {
           enabled: true,
           runs: 200
         }
+      },
+      optimizer: {
+        enabled: true,
+        runs: 200
       }
     }
   }
